@@ -1,0 +1,477 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 47 95% 55%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 47 95% 55%;
+    --radius: 0.5rem;
+    --font-sans: var(--font-montserrat);
+    --font-heading: var(--font-poppins);
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 47 95% 55%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 47 95% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+  }
+}
+
+.glow-effect {
+  position: relative;
+}
+
+.glow-effect:hover::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: var(--radius);
+  background: linear-gradient(45deg, rgba(255, 215, 0, 0.3), rgba(255, 215, 0, 0));
+  z-index: -1;
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.text-cycle {
+  display: inline-block;
+  position: relative;
+  min-width: 120px;
+  height: 0.85em;
+  vertical-align: baseline; /* Changed from bottom to baseline */
+  line-height: 1; /* Added to match parent line height */
+}
+
+.text-cycle span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding-bottom: 0.2em;
+  animation: cycleText 8s linear infinite 0s;
+}
+
+.text-cycle span:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.text-cycle span:nth-child(3) {
+  animation-delay: 2s;
+}
+
+.text-cycle span:nth-child(4) {
+  animation-delay: 3s;
+}
+
+.text-cycle span:nth-child(5) {
+  animation-delay: 4s;
+}
+
+.text-cycle span:nth-child(6) {
+  animation-delay: 5s;
+}
+
+.text-cycle span:nth-child(7) {
+  animation-delay: 6s;
+}
+
+.text-cycle span:nth-child(8) {
+  animation-delay: 7s;
+}
+
+@keyframes cycleText {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  5% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  17% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.typing-animation::after {
+  content: "|";
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, rgba(25, 25, 35, 1) 0%, rgba(10, 10, 20, 1) 100%);
+}
+
+.hero-gradient {
+  background: radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.15) 0%, rgba(0, 0, 0, 0) 50%);
+}
+
+.features-gradient {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(255, 215, 0, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
+}
+
+.cta-gradient {
+  background: linear-gradient(135deg, rgba(25, 25, 35, 0.9) 0%, rgba(10, 10, 20, 0.9) 100%),
+    radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.15) 0%, rgba(0, 0, 0, 0) 50%);
+}
+
+.note-slide-in {
+  animation: noteSlideIn 0.3s ease-out forwards;
+}
+
+@keyframes noteSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sidebar-item-hover:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.toolbar-button {
+  @apply p-2 rounded-md hover:bg-secondary transition-colors;
+}
+
+.toolbar-button.active {
+  @apply bg-secondary text-primary;
+}
+
+.note-expand {
+  animation: noteExpand 0.3s ease-out forwards;
+}
+
+@keyframes noteExpand {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 500px;
+    opacity: 1;
+  }
+}
+
+.modal-overlay {
+  @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  @apply bg-background rounded-lg shadow-xl w-full max-w-md overflow-hidden;
+  animation: scaleIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.tag-pill {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary;
+  transition: all 0.2s ease;
+}
+
+.tag-pill:hover {
+  @apply bg-primary/30;
+}
+
+.note-card {
+  transition: all 0.3s ease;
+}
+
+.note-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.floating-toolbar {
+  @apply flex items-center space-x-1 p-1 rounded-lg bg-background/90 backdrop-blur-sm border border-border/50 shadow-lg;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.search-animation {
+  animation: searchPulse 2s infinite;
+}
+
+@keyframes searchPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.2);
+  }
+  70% {
+    box-shadow: 0 0 0 5px rgba(255, 215, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+.empty-state {
+  @apply flex flex-col items-center justify-center text-center p-8;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.bounce-in {
+  animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Custom styles to replace typography plugin */
+.note-content h1 {
+  @apply text-2xl font-bold mt-6 mb-4;
+}
+
+.note-content h2 {
+  @apply text-xl font-bold mt-5 mb-3;
+}
+
+.note-content h3 {
+  @apply text-lg font-bold mt-4 mb-2;
+}
+
+.note-content p {
+  @apply my-3;
+}
+
+.note-content ul {
+  @apply list-disc pl-5 my-3;
+}
+
+.note-content ol {
+  @apply list-decimal pl-5 my-3;
+}
+
+.note-content li {
+  @apply my-1;
+}
+
+.note-content a {
+  @apply text-primary underline;
+}
+
+.note-content blockquote {
+  @apply border-l-4 border-primary/30 pl-4 italic my-4;
+}
+
+.note-content code {
+  @apply bg-secondary/50 px-1 py-0.5 rounded text-sm;
+}
+
+.note-content pre {
+  @apply bg-secondary/50 p-3 rounded my-4 overflow-x-auto;
+}
+
+.note-content img {
+  @apply max-w-full h-auto my-4 rounded;
+}
+
+.note-content hr {
+  @apply border-border my-6;
+}
+
+.note-content table {
+  @apply w-full border-collapse my-4;
+}
+
+.note-content th,
+.note-content td {
+  @apply border border-border p-2;
+}
+
+.note-content th {
+  @apply bg-secondary/50;
+}
