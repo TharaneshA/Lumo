@@ -96,50 +96,116 @@ export default function NoteTakingApp() {
 
   useEffect(() => {
     setIsVisible(true)
-    // Initialize with some sample notes
-    const sampleNotes: NoteType[] = [
-      {
-        id: "1",
-        title: "Meeting with Design Team",
-        content: "# Meeting with Design Team\n\nDiscuss the new UI components and color palette for the mobile app.",
-        type: "meeting",
-        createdAt: new Date(Date.now() - 86400000), // 1 day ago
-        tags: ["design", "mobile"],
-        isFavorite: true,
-        color: "#FFD700",
-      },
-      {
-        id: "2",
-        title: "Shopping List",
-        content: "- Buy groceries\n- Call mom\n- Schedule dentist appointment",
-        type: "task",
-        createdAt: new Date(Date.now() - 172800000), // 2 days ago
-        tags: ["personal"],
-        isFavorite: false,
-      },
-      {
-        id: "3",
-        title: "Quarterly Report Reminder",
-        content: "Remember to send the quarterly report by Friday.",
-        type: "reminder",
-        createdAt: new Date(Date.now() - 259200000), // 3 days ago
-        tags: ["work"],
-        isFavorite: false,
-      },
-      {
-        id: "4",
-        title: "App Feature Ideas",
-        content:
-          "# New Feature Ideas\n\n1. **Dark mode toggle**\n2. *Voice commands*\n3. Collaborative editing\n4. Export to PDF",
-        type: "note",
-        createdAt: new Date(Date.now() - 345600000), // 4 days ago
-        tags: ["ideas", "development"],
-        isFavorite: true,
-      },
-    ]
-
-    setNotes(sampleNotes)
-    setShowEmptyState(false)
+    
+    // Fetch notes from API
+    const fetchNotes = async () => {
+      try {
+        const response = await fetch('/api/notes')
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch notes')
+        }
+        
+        const data = await response.json()
+        
+        if (data.notes && data.notes.length > 0) {
+          // Transform API notes to match our NoteType format
+          const formattedNotes: NoteType[] = data.notes.map((note: any) => ({
+            id: note.id,
+            title: note.title,
+            content: note.content,
+            type: note.content.includes('- ') ? 'task' : 'note',
+            createdAt: new Date(note.createdAt),
+            tags: note.tags || [],
+            isFavorite: note.isFavorite || false,
+            color: note.color,
+          }))
+          
+          setNotes(formattedNotes)
+          setShowEmptyState(false)
+        } else {
+          // If no notes found, use sample notes for demo purposes
+          const sampleNotes: NoteType[] = [
+            {
+              id: "1",
+              title: "Meeting with Design Team",
+              content: "# Meeting with Design Team\n\nDiscuss the new UI components and color palette for the mobile app.",
+              type: "meeting",
+              createdAt: new Date(Date.now() - 86400000), // 1 day ago
+              tags: ["design", "mobile"],
+              isFavorite: true,
+              color: "#FFD700",
+            },
+            {
+              id: "2",
+              title: "Shopping List",
+              content: "- Buy groceries\n- Call mom\n- Schedule dentist appointment",
+              type: "task",
+              createdAt: new Date(Date.now() - 172800000), // 2 days ago
+              tags: ["personal"],
+              isFavorite: false,
+            },
+            {
+              id: "3",
+              title: "Quarterly Report Reminder",
+              content: "Remember to send the quarterly report by Friday.",
+              type: "reminder",
+              createdAt: new Date(Date.now() - 259200000), // 3 days ago
+              tags: ["work"],
+              isFavorite: false,
+            },
+            {
+              id: "4",
+              title: "App Feature Ideas",
+              content:
+                "# New Feature Ideas\n\n1. **Dark mode toggle**\n2. *Voice commands*\n3. Collaborative editing\n4. Export to PDF",
+              type: "note",
+              createdAt: new Date(Date.now() - 345600000), // 4 days ago
+              tags: ["ideas", "development"],
+              isFavorite: true,
+            },
+          ]
+          
+          setNotes(sampleNotes)
+          setShowEmptyState(false)
+        }
+      } catch (error) {
+        console.error('Error fetching notes:', error)
+        // Use sample notes as fallback
+        const sampleNotes: NoteType[] = [
+          {
+            id: "1",
+            title: "Meeting with Design Team",
+            content: "# Meeting with Design Team\n\nDiscuss the new UI components and color palette for the mobile app.",
+            type: "meeting",
+            createdAt: new Date(Date.now() - 86400000),
+            tags: ["design", "mobile"],
+            isFavorite: true,
+            color: "#FFD700",
+          },
+          {
+            id: "2",
+            title: "Shopping List",
+            content: "- Buy groceries\n- Call mom\n- Schedule dentist appointment",
+            type: "task",
+            createdAt: new Date(Date.now() - 172800000),
+            tags: ["personal"],
+            isFavorite: false,
+          },
+        ]
+        
+        setNotes(sampleNotes)
+        setShowEmptyState(false)
+        
+        toast({
+          title: "Could not load notes",
+          description: "Using sample notes instead.",
+          variant: "destructive"
+        })
+      }
+    }
+    
+    fetchNotes()
   }, [])
 
   const filteredNotes = notes.filter((note) => {
@@ -165,69 +231,177 @@ export default function NoteTakingApp() {
     return matchesSearch && matchesCategory
   })
 
-  const toggleRecording = () => {
-    setIsRecording(!isRecording)
+  // Initialize media recorder refs
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioChunksRef = useRef<Blob[]>([])
 
-    if (!isRecording) {
-      // Simulate voice recording with typing animation
-      const text =
-        "This is a demo of how Lumo transcribes your voice into beautifully formatted notes. It automatically detects formatting like **bold text** and *italics*."
-      let index = 0
+  useEffect(() => {
+    // Request microphone permissions when component mounts
+    if (typeof window !== 'undefined') {
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(() => console.log('Microphone permission granted'))
+        .catch(err => console.error('Error accessing microphone:', err))
+    }
+  }, [])
 
-      const interval = setInterval(() => {
-        if (index < text.length) {
-          setInput((prev) => prev + text[index])
-          index++
-        } else {
-          clearInterval(interval)
-          setIsRecording(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
-          // Set a title based on the content
-          if (!title) {
-            setTitle("Voice Note - " + new Date().toLocaleTimeString())
-          }
+  const toggleRecording = async () => {
+    if (isRecording) {
+      // Stop recording
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop()
+        setIsRecording(false)
+      }
+      return
+    }
 
-          toast({
-            title: "Voice transcription complete",
-            description: "Your voice has been transcribed successfully.",
-            className: "bg-primary/20 border-primary",
-          })
+    try {
+      setIsRecording(true)
+      audioChunksRef.current = []
+
+      // Get microphone stream
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      
+      // Create media recorder
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+      
+      // Handle data available event
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
         }
-      }, 50)
+      }
+      
+      // Handle recording stop event
+      mediaRecorder.onstop = async () => {
+        setIsProcessing(true)
+        
+        // Create audio blob from chunks
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        
+        // Create form data for API request
+        const formData = new FormData()
+        formData.append('audio', audioBlob, 'recording.webm')
+        
+        try {
+          // Send to transcription API
+          const response = await fetch('/api/transcribe', {
+            method: 'POST',
+            body: formData,
+          })
+          
+          const data = await response.json()
+          
+          if (response.ok) {
+            setInput(data.text)
+            
+            // Set a title based on the content
+            if (!title) {
+              setTitle("Voice Note - " + new Date().toLocaleTimeString())
+            }
+            
+            toast({
+              title: "Voice transcription complete",
+              description: "Your voice has been transcribed successfully.",
+              className: "bg-primary/20 border-primary",
+            })
+          } else {
+            throw new Error(data.error || 'Transcription failed')
+          }
+        } catch (error) {
+          console.error('Transcription error:', error)
+          toast({
+            title: "Transcription failed",
+            description: error instanceof Error ? error.message : "An error occurred during transcription",
+            variant: "destructive"
+          })
+        } finally {
+          setIsProcessing(false)
+          
+          // Stop all tracks on the stream
+          stream.getTracks().forEach(track => track.stop())
+        }
+      }
+      
+      // Start recording
+      mediaRecorder.start()
+      
+      toast({
+        title: "Recording started",
+        description: "Speak clearly into your microphone.",
+      })
+    } catch (error) {
+      console.error('Error starting recording:', error)
+      setIsRecording(false)
+      toast({
+        title: "Recording failed",
+        description: "Could not access your microphone. Please check permissions.",
+        variant: "destructive"
+      })
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (input.trim()) {
-      const newNote: NoteType = {
-        id: Date.now().toString(),
-        title: title || "Untitled Note",
-        content: input,
-        type: input.includes("- ") ? "task" : "note",
-        createdAt: new Date(),
-        tags: selectedTags,
-        isFavorite: false,
-      }
-
-      setNotes((prev) => [newNote, ...prev])
-      setInput("")
-      setTitle("")
-      setSelectedTags([])
-      setShowEmptyState(false)
-
-      toast({
-        title: "Note saved!",
-        description: "Your note has been successfully saved.",
-        className: "bg-primary/20 border-primary",
-      })
-
-      // Show the note slide-in animation
-      setTimeout(() => {
-        const noteElement = document.getElementById(`note-${newNote.id}`)
-        if (noteElement) {
-          noteElement.classList.add("note-slide-in")
+      try {
+        const newNote: NoteType = {
+          id: Date.now().toString(),
+          title: title || "Untitled Note",
+          content: input,
+          type: input.includes("- ") ? "task" : "note",
+          createdAt: new Date(),
+          tags: selectedTags,
+          isFavorite: false,
         }
-      }, 100)
+
+        // Save note to API
+        const response = await fetch('/api/notes', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: newNote.title,
+            content: newNote.content,
+            tags: newNote.tags,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to save note')
+        }
+
+        // Update local state
+        setNotes((prev) => [newNote, ...prev])
+        setInput("")
+        setTitle("")
+        setSelectedTags([])
+        setShowEmptyState(false)
+
+        toast({
+          title: "Note saved!",
+          description: "Your note has been successfully saved.",
+          className: "bg-primary/20 border-primary",
+        })
+
+        // Show the note slide-in animation
+        setTimeout(() => {
+          const noteElement = document.getElementById(`note-${newNote.id}`)
+          if (noteElement) {
+            noteElement.classList.add("note-slide-in")
+          }
+        }, 100)
+      } catch (error) {
+        console.error('Error saving note:', error)
+        toast({
+          title: "Failed to save note",
+          description: error instanceof Error ? error.message : "There was an error saving your note.",
+          variant: "destructive"
+        })
+      }
     }
   }
 

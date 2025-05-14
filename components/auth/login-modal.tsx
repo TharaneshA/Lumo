@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { X } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { signIn } from "next-auth/react"
 
 interface LoginModalProps {
   onClose: () => void
@@ -34,18 +35,21 @@ export default function LoginModal({ onClose, onSwitchToSignup }: LoginModalProp
     }, 1500)
   }
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     setIsLoading(true)
-
-    // Simulate Google login process
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      await signIn('google', { callbackUrl: '/app' })
+      // Note: We don't need to manually close the modal or show toast here
+      // as the page will redirect after successful login
+    } catch (error) {
+      console.error('Google login error:', error)
       toast({
-        title: "Google login successful",
-        description: "Welcome back to Lumo!",
+        title: "Login failed",
+        description: "There was a problem logging in with Google.",
+        variant: "destructive"
       })
-      onClose()
-    }, 1500)
+      setIsLoading(false)
+    }
   }
 
   return (

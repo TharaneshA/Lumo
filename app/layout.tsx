@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Montserrat, Poppins } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { SessionProvider } from "@/providers/SessionProvider"
+import { AuthProvider } from "@/context/AuthContext"
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -31,7 +33,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${montserrat.variable} ${poppins.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
-          {children}
+          <SessionProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

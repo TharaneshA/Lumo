@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { X } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { signIn } from "next-auth/react"
 
 interface SignupModalProps {
   onClose: () => void
@@ -35,18 +36,21 @@ export default function SignupModal({ onClose, onSwitchToLogin }: SignupModalPro
     }, 1500)
   }
 
-  const handleGoogleSignup = () => {
+  const handleGoogleSignup = async () => {
     setIsLoading(true)
-
-    // Simulate Google signup process
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      await signIn('google', { callbackUrl: '/app' })
+      // Note: We don't need to manually close the modal or show toast here
+      // as the page will redirect after successful login
+    } catch (error) {
+      console.error('Google signup error:', error)
       toast({
-        title: "Account created with Google",
-        description: "Welcome to Lumo! Your account has been created successfully.",
+        title: "Signup failed",
+        description: "There was a problem signing up with Google.",
+        variant: "destructive"
       })
-      onClose()
-    }, 1500)
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -91,12 +95,8 @@ export default function SignupModal({ onClose, onSwitchToLogin }: SignupModalPro
               <p className="text-xs text-muted-foreground">Password must be at least 8 characters long</p>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-              disabled={isLoading}
-            >
-              {isLoading ? "Creating account..." : "Sign Up"}
+            <Button variant="default" size="default" onClick={() => {}}>
+              Sign Up
             </Button>
           </form>
 
